@@ -12,7 +12,7 @@
 double sunMeanAnomalyForJulianDay(double jd);
 double sunMeanLongitudeForJulianDay(double jd);
 
-void sunCoordinatesElementsForJulianDay(double jd, KPCCoordinatesElements *elements);
+KPCCoordinatesElements sunCoordinatesElementsForJulianDay(double jd);
 
 double sunAzimuthForJulianDayLongitudeLatitude(double jd, double longitude, double latitude);
 double sunAltitudeForJulianDayLongitudeLatitude(double jd, double longitude, double latitude);

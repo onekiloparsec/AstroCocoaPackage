@@ -30,7 +30,7 @@ double sunMeanLongitudeForJulianDay(double jd)
 	return L;
 }
 
-void sunCoordinatesElementsForJulianDay(double jd, KPCCoordinatesElements *elements)
+KPCCoordinatesElements sunCoordinatesElementsForJulianDay(double jd)
 {
     // Low precision formula from Almanac.
 	// See also J. Thorstensen (skycalc)
@@ -50,23 +50,24 @@ void sunCoordinatesElementsForJulianDay(double jd, KPCCoordinatesElements *eleme
 	double ra = atan2(y, x);
 	while (ra < 0.) {ra = ra + 2*M_PI;}
 	double dec = asin(z);
-	
-    (*elements).theta = ra * ONE_RAD_IN_HOURS;
-    (*elements).phi = dec * ONE_RAD_IN_DEGREES;
-    (*elements).units = KPCCoordinatesUnitsHoursAndDegrees;    
+
+	KPCCoordinatesElements elements;
+    elements.theta = ra * ONE_RAD_IN_HOURS;
+    elements.phi = dec * ONE_RAD_IN_DEGREES;
+    elements.units = KPCCoordinatesUnitsHoursAndDegrees;
+
+	return elements;
 }
 
 double sunAzimuthForJulianDayLongitudeLatitude(double jd, double longitude, double latitude)
 {
-	KPCCoordinatesElements elements;
-	sunCoordinatesElementsForJulianDay(jd, &elements);
+	KPCCoordinatesElements elements = sunCoordinatesElementsForJulianDay(jd);
     return altitudeForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
 }
 
 double sunAltitudeForJulianDayLongitudeLatitude(double jd, double longitude, double latitude)
 {
-	KPCCoordinatesElements elements;
-	sunCoordinatesElementsForJulianDay(jd, &elements);
+	KPCCoordinatesElements elements = sunCoordinatesElementsForJulianDay(jd);
     return azimuthForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
 }
 

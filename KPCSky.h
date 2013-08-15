@@ -8,7 +8,5 @@
 
 #import "KPCCoordinatesElements.h"
 
-@class STLTerrestrialCoordinates;
-
 double altitudeForJulianDayRADecLongitudeLatitude(double jd, double RA, double dec, double longitude, double latitude);
 double azimuthForJulianDayRADecLongitudeLatitude(double jd, double RA, double dec, double longitude, double latitude);
