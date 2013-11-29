@@ -11,9 +11,10 @@ Pod::Spec.new do |s|
   s.author       = { "Cédric Foellmi" => "cedric@onekilopars.ec" }
   s.source       = { :git => "https://github.com/onekiloparsec/AstroCocoaPackage.git", :tag => "1.0.0" }
   s.platform     			= :osx
-  s.osx.deployment_target 	= '10.8'
+  s.ios.deployment_target	= '6.0'
+  s.osx.deployment_target 	= '10.7'
   s.source_files 			= '.', '*.{h,m}'
   s.public_header_files 	= '*.h'
-  s.framework  				= 'Cocoa'
+  s.framework  				= 'Foundation'
   s.requires_arc 			= true
 end
