@@ -9,25 +9,20 @@
 #import "KPCTimes.h"
 #import "KPCScientificConstants.h"
 
-CFGregorianDate gregorianDateForDateTimeZone(NSDate *date, CFTimeZoneRef tz)
+CFGregorianDate gregorianUTDateForDate(NSDate *date)
 {
 	NSTimeInterval absoluteTimeOfDate = [date timeIntervalSinceReferenceDate]; // == AbsoluteTime since reference date
-	return CFAbsoluteTimeGetGregorianDate((CFTimeInterval)absoluteTimeOfDate, tz); // tz = NULL = GMT
+	return CFAbsoluteTimeGetGregorianDate((CFTimeInterval)absoluteTimeOfDate, NULL); // tz = NULL = GMT
 }
 
-CFGregorianDate gregorianUTCDateForDate(NSDate *date)
+CFGregorianDate gregorianUTDateForDateWithHourValue(NSDate *date, double hour)
 {
-	return gregorianDateForDateTimeZone(date, NULL);
-}
-
-CFGregorianDate gregorianUTCDateForDateWithHourValue(NSDate *date, double hour)
-{
-	hour = fmod(hour+ONE_DAY_IN_HOURS, ONE_DAY_IN_HOURS); // hour always positive. Make sure we don't change day.
-	CFGregorianDate gregorianDate = gregorianUTCDateForDate(date);
+	hour = fmod(hour+DAY2HOUR, DAY2HOUR); // hour always positive. Make sure we don't change day.
+	CFGregorianDate gregorianDate = gregorianUTDateForDate(date);
 	gregorianDate.hour = 0;
 	gregorianDate.minute = 0;
 	gregorianDate.second = 0.0;
-	CFAbsoluteTime absTime = CFGregorianDateGetAbsoluteTime(gregorianDate, NULL) + hour*ONE_HOUR_IN_SECONDS;
+	CFAbsoluteTime absTime = CFGregorianDateGetAbsoluteTime(gregorianDate, NULL) + hour*HOUR2SEC;
 	return CFAbsoluteTimeGetGregorianDate(absTime, NULL);
 }
 
@@ -35,7 +30,7 @@ CFGregorianDate gregorianUTCDateForDateWithHourValue(NSDate *date, double hour)
 
 double julianDayForDate(NSDate *date)
 {
-	return julianDayForGregorianDate(gregorianUTCDateForDate(date));
+	return julianDayForGregorianDate(gregorianUTDateForDate(date));
 }
 
 // Compute the Julian Day from a given date of the Gregorian (usual) calendar.
@@ -45,7 +40,7 @@ double julianDayForGregorianDate(CFGregorianDate date)
 	double year  = (double)date.year;
 	double month = (double)date.month; 
 	double day   = (double)date.day;	
-	double ut    = (double)date.hour + (double)date.minute/ONE_MINUTE_IN_SECONDS + date.second/ONE_HOUR_IN_SECONDS;
+	double ut    = (double)date.hour + (double)date.minute/MIN2SEC + date.second/HOUR2SEC;
 	
 	double jd = 367.0*year - floor( 7.0*( year+floor((month+9.0)/12.0))/4.0 ) - 
 	floor( 3.0*(floor((year+(month-9.0)/7.0)/100.0) +1.0)/4.0) + 
@@ -64,6 +59,13 @@ double modifiedJulianDayForJulianDay(double jd)
 	return jd - MODIFIED_JULIAN_DAY_ZERO;
 }
 
+// See AA, p. 133
+double julianDayForEpoch(double epoch)
+{
+	double julianDaysShift = AVERAGE_JULIAN_YEAR * (epoch - STANDARD_JULIAN_EPOCH);
+	return J2000 + julianDaysShift;
+}
+
 double julianCenturyForJulianDay(double jd)
 {
 	return (jd - J2000)/(AVERAGE_JULIAN_YEAR * 100.0);
@@ -74,10 +76,10 @@ double julianCenturyForDate(NSDate *date)
 	return julianCenturyForJulianDay(julianDayForDate(date));
 }
 
-double UTCHoursFromJulianDay(double jd)
+double UTHoursFromJulianDay(double jd)
 {
 	CFGregorianDate gregorianDate = gregorianDateForJulianDay(jd);
-	return (double)gregorianDate.hour + (double)gregorianDate.minute/ONE_MINUTE_IN_SECONDS + gregorianDate.second/ONE_HOUR_IN_SECONDS;
+	return (double)gregorianDate.hour + (double)gregorianDate.minute/MIN2SEC + gregorianDate.second/HOUR2SEC;
 }
 
 NSDate *dateFromJulianDay(double jd)
@@ -85,7 +87,7 @@ NSDate *dateFromJulianDay(double jd)
 	CFGregorianDate refGregorianDate = CFAbsoluteTimeGetGregorianDate(0, NULL); // Reference Gregorian Date. Jan 1 2001 00:00:00 GMT
 	double refJulianDay = julianDayForGregorianDate(refGregorianDate);
 	double timeInterval = jd - refJulianDay;
-	return [NSDate dateWithTimeIntervalSinceReferenceDate:timeInterval*ONE_DAY_IN_SECONDS];
+	return [NSDate dateWithTimeIntervalSinceReferenceDate:timeInterval*DAY2SEC];
 }
 
 NSDate *dateFromModifiedJulianDay(double mjd)
@@ -134,28 +136,30 @@ CFGregorianDate gregorianDateForJulianDay(double jd)
 
 #pragma mark - Local Sidereal Times
 
-// Ref: Jean Meeus' Astronomical Algorithms, p.87
+// Ref: Jean Meeus' Astronomical Algorithms, p.88, Equ 12.4
+// Return the LMST in hours. No correction for nutation.
 double localSiderealTimeForJulianDayLongitude(double jd, double longitude)
 {
-	double t = julianCenturyForJulianDay(jd);
+	double T = julianCenturyForJulianDay(jd);
 
 	// Greenwhich SiderealTime in degrees!
-	double gmst = 280.46061837 + 360.98564736629*(jd-J2000) + 0.000387933*t*t - t*t*t/38710000.0;
+	double gmst = 280.46061837 + 360.98564736629*(jd-J2000) + 0.000387933*T*T - T*T*T/38710000.0;
 
 	while (gmst < 0.) {
 		gmst = gmst + 360.0;
 	}
 	gmst = fmod(gmst, 360.0);
 
-	// Greenwhich SiderealTime in hours.
-	gmst = gmst * ONE_DEG_IN_HOURS;
+	// Greenwhich SiderealTime in _hours_.
+	gmst = gmst * DEG2HOUR;
 
 	// See AA. p92. LMST = theta_0 - L, for L the longitude, if L is positive West.
 	// Hence, LMST = theta_0 + L if longitude is positive East, as we have here.
-	double lmst = gmst + longitude*ONE_DEG_IN_HOURS;
+	// That's the only convention of AA we don't follow. Probably should be changed one day.
+	double lmst = gmst + longitude*DEG2HOUR;
 
 	// Making sure LMST is positive;
-	lmst = fmod(lmst + ONE_DAY_IN_HOURS, ONE_DAY_IN_HOURS);
+	lmst = fmod(lmst + DAY2HOUR, DAY2HOUR);
 	
 	return lmst;
 }

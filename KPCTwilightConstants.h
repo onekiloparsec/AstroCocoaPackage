@@ -1,9 +1,9 @@
 //
 //  KPCTwilightConstants.h
-//  iObserve
 //
-//  Created by onekiloparsec on 14/8/13.
-//  Copyright (c) 2013 onekiloparsec. All rights reserved.
+//  Created by onekiloparsec on 13/3/10.
+//  https://github.com/onekiloparsec/AstroCocoaPackage
+//  Released under licence GPL v2
 //
 
 typedef NS_ENUM(NSUInteger, KPCTwilightMode) {
@@ -21,3 +21,5 @@ extern double const KPCTwilightCivilianSunAltitude;
 extern double const KPCTwilightSetRiseSunAltitude;
 
 extern double const KPCTwilightModeAltitudes[4];
+
+#define KPCTwilightModesCount (sizeof(KPCTwilightModeAltitudes)/sizeof(KPCTwilightModeAltitudes[0]))

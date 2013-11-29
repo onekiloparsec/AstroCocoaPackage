@@ -23,37 +23,37 @@ double sunMeanAnomalyForJulianDay(double jd)
 // Ref: Jean Meeus' Astronomical Algorithms, p. 144
 double sunMeanLongitudeForJulianDay(double jd)
 {
-	// Sun's mean longitude (SEE AA p144);
 	double T = julianCenturyForJulianDay(jd);
 	double L = 280.4665 + 36000.7698*T;
 	L = fmod(L+360.0, 360.0); // Ensure it is comprised between 0 and 360.0;
 	return L;
 }
 
-KPCCoordinatesElements sunCoordinatesElementsForJulianDay(double jd)
+KPCCoordinatesComponents sunCoordinatesComponentsForJulianDay(double jd)
 {
-    // Low precision formula from Almanac.
-	// See also J. Thorstensen (skycalc)
+    // Low precision formula from Almanac. See also J. Thorstensen (skycalc)
 	// ra and dec must be decimal (hours and degrees respectively).
 	
 	double n       = jd - J2000;
 	double L       = 280.460 + 0.9856474 * n;
-	double g       = (357.528 + 0.9856003 * n) / ONE_RAD_IN_DEGREES;					// to get it in radians
-	double lambda  = (L + 1.915 * sin(g) + 0.020 * sin(2. * g)) / ONE_RAD_IN_DEGREES;	// to get it in radians
-	double epsilon = (23.439 - 0.0000004 * n) / ONE_RAD_IN_DEGREES;						// to get it in radians
+	double g       = (357.528 + 0.9856003 * n) * DEG2RAD;
+	double lambda  = (L + 1.915 * sin(g) + 0.020 * sin(2. * g)) * DEG2RAD;
+	double epsilon = (23.439 - 0.0000004 * n) * DEG2RAD;
 	
 	double x = cos(lambda);
 	double y = cos(epsilon) * sin(lambda);
 	double z = sin(epsilon) * sin(lambda);
 	
-	// Yes: y before x, and not atan2(x, y).
-	double ra = atan2(y, x);
-	while (ra < 0.) {ra = ra + 2*M_PI;}
-	double dec = asin(z);
+	// atan2(numerator, denominator) -> atan2(y, x) = atan2(y/x).
+	double RA = atan2(y, x);
+	while (RA < 0.) {
+		RA = RA + 2*M_PI;
+	}
+	double Dec = asin(z);
 
-	KPCCoordinatesElements elements;
-    elements.theta = ra * ONE_RAD_IN_HOURS;
-    elements.phi = dec * ONE_RAD_IN_DEGREES;
+	KPCCoordinatesComponents elements;
+    elements.theta = RA * RAD2HOUR;
+    elements.phi = Dec * RAD2DEG;
     elements.units = KPCCoordinatesUnitsHoursAndDegrees;
 
 	return elements;
@@ -61,14 +61,14 @@ KPCCoordinatesElements sunCoordinatesElementsForJulianDay(double jd)
 
 double sunAzimuthForJulianDayLongitudeLatitude(double jd, double longitude, double latitude)
 {
-	KPCCoordinatesElements elements = sunCoordinatesElementsForJulianDay(jd);
-    return altitudeForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
+	KPCCoordinatesComponents elements = sunCoordinatesComponentsForJulianDay(jd);
+    return KPCSkyAzimuthForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
 }
 
 double sunAltitudeForJulianDayLongitudeLatitude(double jd, double longitude, double latitude)
 {
-	KPCCoordinatesElements elements = sunCoordinatesElementsForJulianDay(jd);
-    return azimuthForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
+	KPCCoordinatesComponents elements = sunCoordinatesComponentsForJulianDay(jd);
+    return KPCSkyAltitudeForJulianDayRADecLongitudeLatitude(jd, elements.theta, elements.phi, longitude, latitude);
 }
 
 // See Jean Meeus' Astronomical Algorithms p. 178 Table 27.B
@@ -83,7 +83,7 @@ double marchEquinoxJulianDayForYear(double y)
 	
 	double T = (jd0 - J2000) / 36525;
 	double W = 35999.373*T - 2.47;
-	double Delta_lambda = 1 + 0.0334*cos(W*ONE_DEG_IN_RADIANS) + 0.0007*cos(2*W*ONE_DEG_IN_RADIANS);
+	double Delta_lambda = 1 + 0.0334*cos(W*DEG2RAD) + 0.0007*cos(2*W*DEG2RAD);
 
 	static const double A[24] = {485.0, 203.0, 199.0, 182.0, 156.0, 136.0, 77.0, 74.0, 70.0, 58.0, 52.0, 50.0, 45.0, 44.0, 29.0, 18.0, 17.0, 16.0, 14.0, 12.0, 12.0, 12.0, 9.0, 8.0};
 	static const double B[24] = {324.96, 337.23, 342.08, 27.85, 73.14, 171.52, 222.54, 296.72, 243.58, 119.81, 297.17, 21.02, 247.54, 325.15, 60.93, 155.12, 288.79, 198.04, 199.76, 95.39, 287.11, 320.81, 227.73, 15.45};
@@ -91,7 +91,7 @@ double marchEquinoxJulianDayForYear(double y)
 	
 	double S = 0.0;
 	for (int i = 0; i < 24; i++) {
-		S += A[i]*cos((B[i]+C[i]*T)*ONE_DEG_IN_RADIANS);
+		S += A[i]*cos((B[i]+C[i]*T)*DEG2RAD);
 	}
 	
 	double jd = jd0 + (0.00001*S)/Delta_lambda;

@@ -7,12 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "KPCCoordinatesElements.h"
+#import "KPCCoordinatesComponents.h"
 
 double sunMeanAnomalyForJulianDay(double jd);
 double sunMeanLongitudeForJulianDay(double jd);
 
-KPCCoordinatesElements sunCoordinatesElementsForJulianDay(double jd);
+KPCCoordinatesComponents sunCoordinatesComponentsForJulianDay(double jd);
 
 double sunAzimuthForJulianDayLongitudeLatitude(double jd, double longitude, double latitude);
 double sunAltitudeForJulianDayLongitudeLatitude(double jd, double longitude, double latitude);

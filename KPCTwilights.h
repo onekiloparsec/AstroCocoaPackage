@@ -4,6 +4,7 @@
 //  Created by onekiloparsec on 13/3/10.
 //  https://github.com/onekiloparsec/AstroCocoaPackage
 //  Released under licence GPL v2
+//  Using algorithms released to the public domain by Paul Schlyter, December 1992
 //
 
 #import <Foundation/Foundation.h>
@@ -11,7 +12,7 @@
 
 // Generic
 
-// Use limb = 1 (or any != 0) for sunset and sunrise, 0 otherwise.
+// Use limb = 1 (or any int != 0) for sunset and sunrise, 0 otherwise.
 double dayLengthForDateLongitudeLatitudeAltitudeLimb(NSDate *date,
 													 double longitude,
 													 double latitude,

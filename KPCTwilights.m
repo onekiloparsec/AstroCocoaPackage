@@ -14,7 +14,7 @@
 
 double dayLengthForDateLongitudeLatitudeAltitudeLimb(NSDate *date, double longitude, double latitude, double altitude, int limb)
 {
-	CFGregorianDate gregorianDate = gregorianUTCDateForDate(date);
+	CFGregorianDate gregorianDate = gregorianUTDateForDate(date);
 	return __daylen__(gregorianDate.year,
 					  gregorianDate.month,
 					  gregorianDate.day,
@@ -28,7 +28,7 @@ double dayLengthForDateLongitudeLatitudeMode(NSDate *date, double longitude, dou
 {
 	int limb = (mode == KPCTwilightSetRiseSunAltitude) ? 1 : 0;
 	double altitude = KPCTwilightModeAltitudes[mode];
-	CFGregorianDate gregorianDate = gregorianUTCDateForDate(date);
+	CFGregorianDate gregorianDate = gregorianUTDateForDate(date);
 
 	return __daylen__(gregorianDate.year,
 					  gregorianDate.month,
@@ -49,7 +49,7 @@ void twilightJulianDaysForDateLongitudeLatitudeAltitudeLimb(NSDate *date,
 															double *jdSet)
 {
 	double hourRise, hourSet;
-	CFGregorianDate gregorianDate = gregorianUTCDateForDate(date);
+	CFGregorianDate gregorianDate = gregorianUTDateForDate(date);
 	int result = __sunriset__(gregorianDate.year,
 							  gregorianDate.month,
 							  gregorianDate.day,
@@ -61,8 +61,8 @@ void twilightJulianDaysForDateLongitudeLatitudeAltitudeLimb(NSDate *date,
 							  &hourSet);
 
 	if (result == 0) {
-		NSDate *dateRise = [date dateWithUTCHourValue:hourRise];
-		NSDate *dateSet = [date dateWithUTCHourValue:hourSet];
+		NSDate *dateRise = [date dateWithUTHourValue:hourRise];
+		NSDate *dateSet = [date dateWithUTHourValue:hourSet];
 		*jdRise = [dateRise julianDay];
 		*jdSet = [dateSet julianDay];
 	}
@@ -96,8 +96,7 @@ double morningTwilightJulianDayForObservingDateLongitudeLatitudeMode(NSDate *dat
 	double altitude = KPCTwilightModeAltitudes[mode];
 	int limb = (mode == KPCTwilightSetRiseSunAltitude) ? 1 : 0;
 
-	// The morning twilight of a given observing NIGHT is the rise of the next day.
-	twilightJulianDaysForDateLongitudeLatitudeAltitudeLimb([date dateByAddingTimeInterval:ONE_DAY_IN_SECONDS],
+	twilightJulianDaysForDateLongitudeLatitudeAltitudeLimb(date,
 														   longitude,
 														   latitude,
 														   altitude,

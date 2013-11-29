@@ -1,9 +1,9 @@
 //
 //  KPCTwilightConstants.c
-//  iObserve
 //
-//  Created by onekiloparsec on 14/8/13.
-//  Copyright (c) 2013 onekiloparsec. All rights reserved.
+//  Created by onekiloparsec on 13/3/10.
+//  https://github.com/onekiloparsec/AstroCocoaPackage
+//  Released under licence GPL v2
 //
 
 #import "KPCTwilightConstants.h"
