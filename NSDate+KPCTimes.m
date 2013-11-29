@@ -7,6 +7,7 @@
 //
 
 #import "NSDate+KPCTimes.h"
+#import "KPCScientificConstants.h"
 #import "KPCTimes.h"
 #import "KPCSun.h"
 

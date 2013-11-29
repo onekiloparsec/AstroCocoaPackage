@@ -7,6 +7,7 @@
 //
 
 #import "KPCCoordinatesComponents.h"
+#import "KPCScientificConstants.h"
 
 KPCCoordinatesComponents KPCMakeCoordinatesComponents(id input)
 {

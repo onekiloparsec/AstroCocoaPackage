@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "KPCCoordinatesComponents.h"
 
 // Summary of name conventions.
 // Short   = no seconds value.

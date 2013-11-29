@@ -7,6 +7,7 @@
 //
 
 #import "KPCAstronomicalCoordinatesComponents.h"
+#import "KPCScientificConstants.h"
 #import "KPCTimes.h"
 
 double KPCJulianEpochStandard(void)

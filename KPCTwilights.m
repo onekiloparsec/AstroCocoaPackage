@@ -8,6 +8,7 @@
 
 #include "sunriset.h"
 
+#import "KPCScientificConstants.h"
 #import "KPCTwilights.h"
 #import "KPCTimes.h"
 #import "NSDate+KPCTimes.h"
