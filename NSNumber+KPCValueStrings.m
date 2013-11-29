@@ -130,7 +130,7 @@
 	}
 
 	[format appendString:@" %02."]; // seconds
-	[format appendFormat:@"%ld", count];
+	[format appendFormat:@"%lu", (unsigned long)count];
 	[format appendString:@"f"];
 	if (symbols) {
 		[format appendString:@"%@"];
@@ -220,7 +220,7 @@
 {
 	NSString *symbol = KPCDecimalCoordinatesSymbol(units);
 	NSMutableString *format = [NSMutableString stringWithString:@"%."];
-	[format appendFormat:@"%ld", count];
+	[format appendFormat:@"%lu", (unsigned long)count];
 	[format appendString:@"f%@"];
 	return [NSString stringWithFormat:format, [self doubleValue], symbol];
 }
