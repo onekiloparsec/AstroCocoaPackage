@@ -18,6 +18,18 @@
 	*d = (double)c.degrees;
 	*m = (double)c.minutes;
 	*s = c.seconds;
+
+	// Rounding workaround (feels dizzy...)
+	// TODO: use NSDecimalNumber everywhere...
+	if ([[NSString stringWithFormat:@"%09.6f", c.seconds] doubleValue] == 60.0) {
+		*s = 0.0;
+		*m += 1.0;
+	}
+	if (*m == 60.0) {
+		*m = 0.0;
+		*d += 1.0;
+	}
+
 	*sign = (value < 0.0) ? @"-" : @"";
 }
 
